@@ -1,29 +1,56 @@
 # routine_app.py
 import streamlit as st
+import time
+from datetime import datetime, timedelta
 
 st.title("Aaj Ki Routine")
 
 routine = {
-    "12:00 PM - 12:30 PM": "Uthna aur khud ko taza karna",
-    "12:30 PM - 1:00 PM": "Nashta",
-    "1:00 PM - 4:00 PM": "PUBG Gaming",
-    "4:00 PM - 4:30 PM": "Din ka Khana",
-    "4:30 PM - 5:30 PM": "YouTube Automation ka kaam",
-    "5:30 PM - 6:30 PM": "YouTube Automation ka kaam",
-    "6:30 PM - 7:30 PM": "YouTube Automation ka kaam",
-    "7:30 PM - 8:30 PM": "YouTube Automation ka kaam",
-    "8:30 PM - 9:30 PM": "YouTube Automation ka kaam",
-    "9:30 PM - 10:30 PM": "YouTube Automation ka kaam",
-    "10:30 PM - 11:00 PM": "YouTube Automation ka kaam",
-    "11:00 PM - 11:30 PM": "Raat ka Khana",
-    "11:30 PM - 12:30 AM": "YouTube Automation ka kaam",
-    "12:30 AM - 1:30 AM": "YouTube Automation ka kaam",
-    "1:30 AM - 3:00 AM": "YouTube Automation ka kaam",
-    "3:00 AM - 12:00 PM": "Neend (9 ghante)"
+    "12:00": {"activity": "Uthna aur khud ko taza karna", "notified": False},
+    "12:30": {"activity": "Nashta", "notified": False},
+    "13:00": {"activity": "PUBG Gaming", "notified": False},
+    "16:00": {"activity": "Din ka Khana", "notified": False},
+    "16:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "17:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "18:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "19:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "20:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "21:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "22:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "23:00": {"activity": "Raat ka Khana", "notified": False},
+    "23:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "00:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "01:30": {"activity": "YouTube Automation ka kaam", "notified": False},
+    "03:00": {"activity": "Neend (9 ghante)", "notified": False},
 }
 
-for time, activity in routine.items():
-    st.write(f"**{time}:** {activity}")
+def check_routine():
+    now = datetime.now()
+    current_time_str = now.strftime("%H:%M")
+    current_time_minute = now.minute
 
-st.subheader("Breaks:")
-st.write("Har ghante ke baad 5-7 minute ka break lein.")
+    for time_str, task_info in routine.items():
+        task_hour = int(time_str.split(":")[0])
+        task_minute = int(time_str.split(":")[1])
+        task_datetime = now.replace(hour=task_hour, minute=task_minute, second=0, microsecond=0)
+
+        # Check if the task is within the next minute and hasn't been notified yet
+        if abs((task_datetime - now).total_seconds()) <= 60 and not task_info["notified"]:
+            st.warning(f"**Abhi:** {task_info['activity']}")
+            # Optional: Play an alarm sound (browser-dependent and might require user interaction)
+            st.components.v1.html("""
+                <audio autoplay>
+                  <source src="https://interactive-examples.mdn.mozilla.net/media/cc0-audio/t-rex-roar.mp3" type="audio/mpeg">
+                  Your browser does not support the audio element.
+                </audio>
+            """, height=0)
+            routine[time_str]["notified"] = True
+
+def display_routine():
+    for time_str, task_info in routine.items():
+        st.write(f"**{time_str}:** {task_info['activity']} {'(Notified)' if task_info['notified'] else ''}")
+
+while True:
+    check_routine()
+    display_routine()
+    time.sleep(60) # Check every 60 seconds
